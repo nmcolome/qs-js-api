@@ -1,6 +1,7 @@
 const assert = require('chai').assert
 const app = require('../server')
 const request = require('request')
+const pry = require('pryjs')
 
 describe('Server', () => {
   before((done) => {
@@ -20,5 +21,50 @@ describe('Server', () => {
 
   it('exists', () => {
     assert(app.locals)
+  })
+
+  describe('GET /api/v1/foods', () => {
+    const foods = [{"id": 1, "name": "apple", "calories": 10},
+             {"id": 2, "name": "pineapple", "calories": 50},
+             {"id": 3, "name": "apple pie", "calories": 100}]
+    
+    it('should return 200', done => {
+      this.request.get('/api/v1/foods', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 200)
+        done()
+      })
+    })
+
+    it('should return a list of foods', done => {
+      this.request.get('/api/v1/foods', (error, response) => {
+        if(error) {return done(error)}
+        assert.deepEqual(JSON.parse(response.body), foods, `${response.body} does not include ${foods}`)
+        assert.property(JSON.parse(response.body)[0], "id")
+        assert.property(JSON.parse(response.body)[0], "name")
+        assert.property(JSON.parse(response.body)[0], "calories")
+        assert.equal(JSON.parse(response.body).length, foods.length)
+        done()
+      })
+    })
+  })
+
+  describe('GET /api/v1/foods/:id', () => {
+    const foods = [{"id": 1, "name": "apple", "calories": 10},
+                  {"id": 2, "name": "pineapple", "calories": 50},
+                  {"id": 3, "name": "apple pie", "calories": 100}]
+    const food = foods[0]
+
+    it('should return a specific food based on id', done => {
+      this.request.get('/api/v1/foods/1', (error, response) => {
+        if(error) {return done(error)}
+        assert.deepEqual(JSON.parse(response.body), food, `${response.body} does not include ${foods}`)
+        assert.property(JSON.parse(response.body), "id")
+        assert.property(JSON.parse(response.body), "name")
+        assert.property(JSON.parse(response.body), "calories")
+        assert.equal(JSON.parse(response.body).length, 1)
+        done()
+      })
+    })
   })
 })
