@@ -16,4 +16,15 @@ app.get('/api/v1/foods/:id', (request, response) => {
   if (!food) {return response.statusCode(404).json({error: "Food not found"})}
 })
 
+app.post('/api/v1/foods', (request, response) => {
+  const id = Date.now()
+  const food = request.body
+  const foodObject = {"id": id, "name": food.name, "calories": food.calories}
+
+  // if(!food) {return response.status(422).json({error: "No food sent"})}
+  app.locals.foods.push(foodObject)
+  response.json(foodObject)
+  response.status(201).end()
+})
+
 module.exports = app
