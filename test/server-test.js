@@ -66,5 +66,22 @@ describe('Server', () => {
         done()
       })
     })
+
+    it('should return a 200 status', done => {
+      this.request.get('/api/v1/foods/1', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 200)
+        done()
+      })
+    })
+
+
+    it('should return a 404 status if not found', done => {
+      this.request.get('/api/v1/foods/1000', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 404)
+        done()
+      })
+    })
   })
 })

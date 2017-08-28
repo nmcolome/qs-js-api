@@ -11,7 +11,9 @@ app.get('/api/v1/foods', (request, response) => {
 
 app.get('/api/v1/foods/:id', (request, response) => {
   const {id} = request.params
+  const food = app.locals.foods[id]
   response.send(app.locals.foods)
+  if (!food) {return response.statusCode(404).json({error: "Food not found"})}
 })
 
 module.exports = app
