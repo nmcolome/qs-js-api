@@ -190,12 +190,13 @@ describe('Server', () => {
       .then(() => done())
     })
 
-    it('should return and updated food record', done => {
+    it('should return 200 and an updated food record', done => {
       const food = { "food": { "name": "pear", "calories": 12}}
       this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
         if(error) {return done(error)}
         const updatedFood = JSON.parse(response.body)
         
+        assert.equal(response.statusCode, 200)
         assert.hasAllKeys(updatedFood, ["id", "name", "calories"])
         assert.equal(updatedFood.id, 1)
         assert.equal(updatedFood.name, "pear")
@@ -204,20 +205,24 @@ describe('Server', () => {
       })
     })
 
-    // it('should return 200 if it successfully deleted a food', done => {
-    //   this.request.delete('/api/v1/foods/1', (error, response) => {
-    //     if(error) {return done(error)}
-    //     assert.equal(response.statusCode, 200)
-    //     done()
-    //   })
-    // })
+    it('should return 404 if resource not found', done => {
+      const food = { "food": { "name": "pear", "calories": 12}}
 
-    // it('should return 404 if resource not found', done => {
-    //   this.request.delete('/api/v1/foods/0', (error, response) => {
-    //     if(error) {return done(error)}
-    //     assert.equal(response.statusCode, 404)
-    //     done()
-    //   })
-    // })
+      this.request.put('/api/v1/foods/0', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 404)
+        done()
+      })
+    })
+
+    it('should return 400 if a field is empty', done => {
+      const food = { "food": { "name": "", "calories": 12}}
+      
+      this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 400)
+        done()
+      })
+    })
   })
 })

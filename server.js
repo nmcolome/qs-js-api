@@ -65,10 +65,18 @@ app.put('/api/v1/foods/:id', (request, response) => {
   const name = updatedFood.name
   const calories = updatedFood.calories
 
-  database.raw(`UPDATE foods SET name = ?, calories = ? WHERE id = ? RETURNING id, name, calories`, [name, calories, id])
-  .then(data => {
-    response.json(data.rows[0])
-  })
+  if(name === "" || calories === "") {
+    response.sendStatus(400)
+  } else {
+    database.raw(`UPDATE foods SET name = ?, calories = ? WHERE id = ? RETURNING id, name, calories`, [name, calories, id])
+    .then(data => {
+      if(data.rowCount < 1) {
+        response.sendStatus(404)
+      } else {
+        response.json(data.rows[0])
+      }
+    })
+  }
 })
 
 app.listen(app.get('port'))
