@@ -60,9 +60,7 @@ describe('Server', () => {
         const allFoods = JSON.parse(response.body)
         assert(response.body.includes('apple'))
         assert(response.body.includes('pineapple'))
-        assert.property(allFoods[0], "id")
-        assert.property(allFoods[0], "name")
-        assert.property(allFoods[0], "calories")
+        assert.hasAllKeys(allFoods[0], ["id", "name", "calories", "created_at"])
         assert.equal(allFoods.length, 2)
         done()
       })
@@ -112,36 +110,36 @@ describe('Server', () => {
     })
   })
 
-  // describe('POST /api/v1/foods', () => {
-  //   // const foods = [{"id": 1, "name": "apple", "calories": 10},
-  //   //               {"id": 2, "name": "pineapple", "calories": 50},
-  //   //               {"id": 3, "name": "apple pie", "calories": 100}]
-  //   const food = {"food": {"name": "blueberry pie", "calories": 150}}
+  describe('POST /api/v1/foods', () => {
+    // const foods = [{"id": 1, "name": "apple", "calories": 10},
+    //               {"id": 2, "name": "pineapple", "calories": 50},
+    //               {"id": 3, "name": "apple pie", "calories": 100}]
+    const food = {"food": {"name": "blueberry pie", "calories": 150}}
 
-  //   it('should create a new food record', done => {
-  //     assert.equal(Object.keys(app.locals.foods).length, 3)
+    it('should create a new food record', done => {
+      assert.equal(Object.keys(app.locals.foods).length, 3)
 
-  //     this.request.post('/api/v1/foods', {form: food}, (error, response) => {
-  //       if(error) {return done(error)}
-  //       assert.equal(Object.keys(app.locals.foods).length, 4)
-  //       done()
-  //     })
-  //   })
+      this.request.post('/api/v1/foods', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(Object.keys(app.locals.foods).length, 4)
+        done()
+      })
+    })
 
-  //   // it('should return a 200 status', done => {
-  //   //   this.request.get('/api/v1/foods', (error, response) => {
-  //   //     if(error) {return done(error)}
-  //   //     assert.equal(response.statusCode, 200)
-  //   //     done()
-  //   //   })
-  //   // })
+    // it('should return a 200 status', done => {
+    //   this.request.get('/api/v1/foods', (error, response) => {
+    //     if(error) {return done(error)}
+    //     assert.equal(response.statusCode, 200)
+    //     done()
+    //   })
+    // })
 
-  //   // it('should return a 404 status if not found', done => {
-  //   //   this.request.get('/api/v1/foods/1000', (error, response) => {
-  //   //     if(error) {return done(error)}
-  //   //     assert.equal(response.statusCode, 404)
-  //   //     done()
-  //   //   })
-  //   // })
-  // })
+    // it('should return a 404 status if not found', done => {
+    //   this.request.get('/api/v1/foods/1000', (error, response) => {
+    //     if(error) {return done(error)}
+    //     assert.equal(response.statusCode, 404)
+    //     done()
+    //   })
+    // })
+  })
 })
