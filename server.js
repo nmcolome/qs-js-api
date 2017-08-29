@@ -1,12 +1,15 @@
 const app = require('express')()
 const request = require('request')
 
-app.locals.foods = [{"id": 1, "name": "apple", "calories": 10},
-                    {"id": 2, "name": "pineapple", "calories": 50},
-                    {"id": 3, "name": "apple pie", "calories": 100}]
+const environment = process.env.NODE_ENV || 'development'
+const configuration = require('./knexfile')[environment]
+const database = require('knex')(configuration)
 
 app.get('/api/v1/foods', (request, response) => {
-  response.send(app.locals.foods)
+  database.raw(`SELECT * FROM foods`)
+  .then(data => {
+    response.json(data.rows)
+  })
 })
 
 app.get('/api/v1/foods/:id', (request, response) => {
