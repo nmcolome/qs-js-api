@@ -9,6 +9,8 @@ const bodyParser = require("body-parser")
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.set('port', process.env.PORT || 3000)
+
 app.get('/api/v1/foods', (request, response) => {
   database.raw(`SELECT id, name, calories FROM foods`)
   .then(data => {
