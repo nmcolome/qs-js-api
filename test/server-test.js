@@ -90,7 +90,7 @@ describe('Server', () => {
         assert.property(food[0], "id")
         assert.property(food[0], "name")
         assert.property(food[0], "calories")
-        // assert.equal(food.length, 1)
+        assert.equal(food.length, 1)
         done()
       })
     })

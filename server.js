@@ -14,7 +14,7 @@ app.get('/api/v1/foods', (request, response) => {
 
 app.get('/api/v1/foods/:id', (request, response) => {
   const { id } = request.params
-  database.raw(`SELECT * FROM foods WHERE id=(?)`, [id])
+  database.raw(`SELECT * FROM foods WHERE id=?`, [id])
   .then(data => {
     if (data.rows.length < 1) {
       return response.sendStatus(404)
