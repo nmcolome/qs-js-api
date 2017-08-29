@@ -126,20 +126,101 @@ describe('Server', () => {
       })
     })
 
-    it('should return a 422 status if no name is included', done => {
+    it('should return a 400 status if no name is included', done => {
       const food = { "food": { "name": "", "calories": 12 } }
       this.request.post('/api/v1/foods', {form: food}, (error, response) => {
         if(error) {return done(error)}
-        assert.equal(response.statusCode, 422)
+        assert.equal(response.statusCode, 400)
         done()
       })
     })
 
-    it('should return a 422 status if no calories is included', done => {
+    it('should return a 400 status if no calories is included', done => {
       const food = { "food": { "name": "apple", "calories": "" } }
       this.request.post('/api/v1/foods', {form: food}, (error, response) => {
         if(error) {return done(error)}
-        assert.equal(response.statusCode, 422)
+        assert.equal(response.statusCode, 400)
+        done()
+      })
+    })
+  })
+
+  describe('DELETE /api/v1/foods/:id', () => {
+    beforeEach(done => {
+      Promise.all([
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date])
+        .then(() => done())
+      ])
+    })
+
+    afterEach(done => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    })
+
+    it('should return 200 if it successfully deleted a food', done => {
+      this.request.delete('/api/v1/foods/1', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 200)
+        done()
+      })
+    })
+
+    it('should return 404 if resource not found', done => {
+      this.request.delete('/api/v1/foods/0', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 404)
+        done()
+      })
+    })
+  })
+
+  describe('PUT /api/v1/foods/:id', () => {
+    beforeEach(done => {
+      Promise.all([
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date])
+        .then(() => done())
+      ])
+    })
+
+    afterEach(done => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    })
+
+    it('should return 200 and an updated food record', done => {
+      const food = { "food": { "name": "pear", "calories": 12}}
+      this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        const updatedFood = JSON.parse(response.body)
+        
+        assert.equal(response.statusCode, 200)
+        assert.hasAllKeys(updatedFood, ["id", "name", "calories"])
+        assert.equal(updatedFood.id, 1)
+        assert.equal(updatedFood.name, "pear")
+        assert.notEqual(updatedFood.name, "apple")
+        done()
+      })
+    })
+
+    it('should return 404 if resource not found', done => {
+      const food = { "food": { "name": "pear", "calories": 12}}
+
+      this.request.put('/api/v1/foods/0', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 404)
+        done()
+      })
+    })
+
+    it('should return 400 if a field is empty', done => {
+      const food = { "food": { "name": "", "calories": 12}}
+      
+      this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 400)
         done()
       })
     })
