@@ -8,7 +8,6 @@ const database = require('knex')(configuration)
 const bodyParser = require("body-parser")
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.set('port', process.env.PORT || 3000)
 
 app.get('/api/v1/foods', (request, response) => {
   database.raw(`SELECT id, name, calories FROM foods`)
@@ -34,7 +33,7 @@ app.post('/api/v1/foods', (request, response) => {
   const name = food.food.name
   const calories = food.food.calories
   if(name === "" || calories === "") {
-    return response.sendStatus(400)
+    return response.sendStatus(422)
   } else {
     database.raw(
       'INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?) RETURNING id, name, calories',
