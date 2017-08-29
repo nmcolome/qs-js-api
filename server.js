@@ -5,8 +5,12 @@ const environment = process.env.NODE_ENV || 'development'
 const configuration = require('./knexfile')[environment]
 const database = require('knex')(configuration)
 
+const bodyParser = require("body-parser")
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+
 app.get('/api/v1/foods', (request, response) => {
-  database.raw(`SELECT * FROM foods`)
+  database.raw(`SELECT id, name, calories FROM foods`)
   .then(data => {
     response.json(data.rows)
   })
@@ -14,7 +18,7 @@ app.get('/api/v1/foods', (request, response) => {
 
 app.get('/api/v1/foods/:id', (request, response) => {
   const { id } = request.params
-  database.raw(`SELECT * FROM foods WHERE id=?`, [id])
+  database.raw(`SELECT id, name, calories FROM foods WHERE id=?`, [id])
   .then(data => {
     if (data.rows.length < 1) {
       return response.sendStatus(404)
@@ -25,14 +29,20 @@ app.get('/api/v1/foods/:id', (request, response) => {
 })
 
 app.post('/api/v1/foods', (request, response) => {
-  const id = Date.now()
   const food = request.body
-  const foodObject = {"id": id, "name": food.name, "calories": food.calories}
-
-  // if(!food) {return response.status(422).json({error: "No food sent"})}
-  app.locals.foods.push(foodObject)
-  response.json(foodObject)
-  response.status(201).end()
+  const name = food.food.name
+  const calories = food.food.calories
+  if(name === "" || calories === "") {
+    return response.sendStatus(422)
+  } else {
+    database.raw(
+      'INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?) RETURNING id, name, calories',
+      [name, calories, new Date]
+    )
+    .then((data) => {
+      response.json(data.rows)
+    })
+  }
 })
 
 module.exports = app
