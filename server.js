@@ -35,7 +35,7 @@ app.post('/api/v1/foods', (request, response) => {
   const name = food.food.name
   const calories = food.food.calories
   if(name === "" || calories === "") {
-    return response.sendStatus(422)
+    return response.sendStatus(400)
   } else {
     database.raw(
       'INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?) RETURNING id, name, calories',
