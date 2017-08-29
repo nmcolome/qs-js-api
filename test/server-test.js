@@ -30,11 +30,11 @@ describe('Server', () => {
     beforeEach((done) => {
       Promise.all([
         database.raw(
-          'INSERT INTO foods (name, calories, created_at) VALUES (?,?,?)', 
+          'INSERT INTO foods (name, calories, created_at) VALUES (?,?,?)',
           ["apple", 12, new Date]
         ),
         database.raw(
-          'INSERT INTO foods (name, calories, created_at) VALUES (?,?,?)', 
+          'INSERT INTO foods (name, calories, created_at) VALUES (?,?,?)',
           ["pineapple", 50, new Date]
         )
       ])
@@ -69,40 +69,48 @@ describe('Server', () => {
     })
   })
 
-  // describe('GET /api/v1/foods/:id', () => {
-  //   const foods = [{"id": 1, "name": "apple", "calories": 10},
-  //                 {"id": 2, "name": "pineapple", "calories": 50},
-  //                 {"id": 3, "name": "apple pie", "calories": 100}]
-  //   const food = foods[0]
+  describe('GET /api/v1/foods/:id', () => {
+    beforeEach(done => {
+      Promise.all([
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date])
+        .then(() => done())
+      ])
+    })
 
-  //   // it('should return a specific food based on id', done => {
-  //   //   this.request.get('/api/v1/foods/1', (error, response) => {
-  //   //     if(error) {return done(error)}
-  //   //     assert.deepEqual(JSON.parse(response.body), food, `${response.body} does not include ${foods}`)
-  //   //     assert.property(JSON.parse(response.body), "id")
-  //   //     assert.property(JSON.parse(response.body), "name")
-  //   //     assert.property(JSON.parse(response.body), "calories")
-  //   //     assert.equal(JSON.parse(response.body).length, 1)
-  //   //     done()
-  //   //   })
-  //   // })
+    afterEach(done => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    })
 
-  //   it('should return a 200 status', done => {
-  //     this.request.get('/api/v1/foods/1', (error, response) => {
-  //       if(error) {return done(error)}
-  //       assert.equal(response.statusCode, 200)
-  //       done()
-  //     })
-  //   })
+    it('should return a specific food based on id', done => {
+      this.request.get('/api/v1/foods/1', (error, response) => {
+        if(error) {return done(error)}
+        const food = JSON.parse(response.body)
+        assert(response.body.includes("apple"), `${response.body} does not include ${food}`)
+        assert.property(food[0], "id")
+        assert.property(food[0], "name")
+        assert.property(food[0], "calories")
+        assert.equal(food.length, 1)
+        done()
+      })
+    })
 
-  //   // it('should return a 404 status if not found', done => {
-  //   //   this.request.get('/api/v1/foods/1000', (error, response) => {
-  //   //     if(error) {return done(error)}
-  //   //     assert.equal(response.statusCode, 404)
-  //   //     done()
-  //   //   })
-  //   // })
-  // })
+    it('should return a 200 status', done => {
+      this.request.get('/api/v1/foods/1', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 200)
+        done()
+      })
+    })
+
+    it('should return a 404 status if not found', done => {
+      this.request.get('/api/v1/foods/0', (error, response) => {
+        if(error) {return done(error)}
+        assert.equal(response.statusCode, 404)
+        done()
+      })
+    })
+  })
 
   // describe('POST /api/v1/foods', () => {
   //   // const foods = [{"id": 1, "name": "apple", "calories": 10},
