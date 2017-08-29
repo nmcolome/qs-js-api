@@ -45,4 +45,18 @@ app.post('/api/v1/foods', (request, response) => {
   }
 })
 
+app.delete('/api/v1/foods/:id', (request, response) => {
+  const { id } = request.params
+  database.raw(`DELETE FROM foods WHERE id = ?`, [id])
+  .then((data) => {
+    if (data.rowCount < 1) {
+      response.sendStatus(404)
+    } else {
+      response.sendStatus(200)
+    }
+  })
+})
+
+app.listen(app.get('port'))
+
 module.exports = app
