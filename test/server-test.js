@@ -175,4 +175,49 @@ describe('Server', () => {
       })
     })
   })
+
+  describe('PUT /api/v1/foods/:id', () => {
+    beforeEach(done => {
+      Promise.all([
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date])
+        .then(() => done())
+      ])
+    })
+
+    afterEach(done => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    })
+
+    it('should return and updated food record', done => {
+      const food = { "food": { "name": "pear", "calories": 12}}
+      this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
+        if(error) {return done(error)}
+        const updatedFood = JSON.parse(response.body)
+        
+        assert.hasAllKeys(updatedFood, ["id", "name", "calories"])
+        assert.equal(updatedFood.id, 1)
+        assert.equal(updatedFood.name, "pear")
+        assert.notEqual(updatedFood.name, "apple")
+        done()
+      })
+    })
+
+    // it('should return 200 if it successfully deleted a food', done => {
+    //   this.request.delete('/api/v1/foods/1', (error, response) => {
+    //     if(error) {return done(error)}
+    //     assert.equal(response.statusCode, 200)
+    //     done()
+    //   })
+    // })
+
+    // it('should return 404 if resource not found', done => {
+    //   this.request.delete('/api/v1/foods/0', (error, response) => {
+    //     if(error) {return done(error)}
+    //     assert.equal(response.statusCode, 404)
+    //     done()
+    //   })
+    // })
+  })
 })

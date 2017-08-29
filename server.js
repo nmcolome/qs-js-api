@@ -59,6 +59,18 @@ app.delete('/api/v1/foods/:id', (request, response) => {
   })
 })
 
+app.put('/api/v1/foods/:id', (request, response) => {
+  const { id } = request.params
+  const updatedFood = request.body.food
+  const name = updatedFood.name
+  const calories = updatedFood.calories
+
+  database.raw(`UPDATE foods SET name = ?, calories = ? WHERE id = ? RETURNING id, name, calories`, [name, calories, id])
+  .then(data => {
+    response.json(data.rows[0])
+  })
+})
+
 app.listen(app.get('port'))
 
 module.exports = app
