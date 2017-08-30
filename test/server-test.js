@@ -42,7 +42,7 @@ describe('Server', () => {
     })
 
     afterEach(done => {
-      database.raw(`TRUNCATE foods RESTART IDENTITY`)
+      database.raw(`TRUNCATE foods RESTART IDENTITY CASCADE`)
       .then(() => done())
     })
 
@@ -76,7 +76,7 @@ describe('Server', () => {
     })
 
     afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
+      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
       .then(() => done())
     })
 
@@ -110,7 +110,7 @@ describe('Server', () => {
 
   describe('POST /api/v1/foods', () => {
     afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
+      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
       .then(() => done())
     })
 
@@ -155,7 +155,7 @@ describe('Server', () => {
     })
 
     afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
+      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
       .then(() => done())
     })
 
@@ -186,7 +186,7 @@ describe('Server', () => {
     })
 
     afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY')
+      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
       .then(() => done())
     })
 
@@ -226,29 +226,48 @@ describe('Server', () => {
     })
   })
 
+  // describe ('GET /api/v1/meals', () => {
+  //   beforeEach(done => {
+  //     Promise.all([
+  //       database.raw('INSERT INTO meals (name, created_at) VALUES (?, ?)', ["Breakfast", new Date]),
+  //       database.raw('INSERT INTO meals (name, created_at) VALUES (?, ?)', ["Lunch", new Date])
+  //       .then(() => done())
+  //     ])
+  //   })
+  //
+  //   afterEach(done => {
+  //     database.raw('TRUNCATE meals RESTART IDENTITY CASCADE')
+  //     .then(() => done())
+  //   })
+  //
+  //   it("returns all meals", done => {
+  //     this.request.get('/api/v1/meals', (error, response) => {
+  //       if(error) { done(error) }
+  //       console.log(response.body)
+  //       done()
+  //     })
+  //   })
+  // })
+
+
   describe('GET /api/v1/meals', () => {
     beforeEach(done => {
       Promise.all([
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date]),
-        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Breakfast", new Date]),
-        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Lunch", new Date]),
-        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Dinner", new Date]),
-        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Snack", new Date]),
-        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [1, 1]),
-        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [1, 2]),
-        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [2, 1]),
-        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [2, 2]),
-        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [3, 1]),
-        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [4, 1])
-        .then(() => done())
+        database.raw('INSERT INTO meals (name, created_at) VALUES (?, ?)', ["Breakfast", new Date]),
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date])
+        .then(() => {
+          Promise.all([
+            database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [1, 1]),
+          ])
+        })
       ])
+      .then(() => done())
     })
 
     afterEach(done => {
       Promise.all([
-        database.raw('TRUNCATE foods RESTART IDENTITY'),
-        database.raw('TRUNCATE meals RESTART IDENTITY'),
+        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE'),
+        database.raw('TRUNCATE meals RESTART IDENTITY CASCADE'),
         database.raw('TRUNCATE meal_foods RESTART IDENTITY')
         .then(() => done())
       ])
@@ -256,7 +275,8 @@ describe('Server', () => {
 
     it('returns all meals with their associated foods', () => {
       this.request.get('/api/v1/meals', (error, response) => {
-        if(error) { done(error) }
+        if(error) { return done(error) }
+        console.log(response.body)
         const meals = JSON.parse(response.body)
         const oneMeal = meals[0]
         assert.equal(meals.length, 4)
