@@ -49,7 +49,7 @@ exports.seed = function(knex, Promise) {
       knex.raw(
         'INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)',
         ["Apple", 220, new Date]
-      )
+      ),
     ])
   })
 }
