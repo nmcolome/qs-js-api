@@ -195,7 +195,7 @@ describe('Server', () => {
       this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
         if(error) {return done(error)}
         const updatedFood = JSON.parse(response.body)
-        
+
         assert.equal(response.statusCode, 200)
         assert.hasAllKeys(updatedFood, ["id", "name", "calories"])
         assert.equal(updatedFood.id, 1)
@@ -217,10 +217,51 @@ describe('Server', () => {
 
     it('should return 400 if a field is empty', done => {
       const food = { "food": { "name": "", "calories": 12}}
-      
+
       this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
         if(error) {return done(error)}
         assert.equal(response.statusCode, 400)
+        done()
+      })
+    })
+  })
+
+  describe('GET /api/v1/meals', () => {
+    beforeEach(done => {
+      Promise.all([
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
+        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date]),
+        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Breakfast", new Date]),
+        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Lunch", new Date]),
+        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Dinner", new Date]),
+        database.raw('INSERT INTO meals (name, created_at) VALUES ?', ["Snack", new Date]),
+        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [1, 1]),
+        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [1, 2]),
+        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [2, 1]),
+        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [2, 2]),
+        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [3, 1]),
+        database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [4, 1])
+        .then(() => done())
+      ])
+    })
+
+    afterEach(done => {
+      Promise.all([
+        database.raw('TRUNCATE foods RESTART IDENTITY'),
+        database.raw('TRUNCATE meals RESTART IDENTITY'),
+        database.raw('TRUNCATE meal_foods RESTART IDENTITY')
+        .then(() => done())
+      ])
+    })
+
+    it('returns all meals with their associated foods', () => {
+      this.request.get('/api/v1/meals', (error, response) => {
+        if(error) { done(error) }
+        const meals = JSON.parse(response.body)
+        const oneMeal = meals[0]
+        assert.equal(meals.length, 4)
+        assert.hasAllKeys(oneMeal, ["id", "name", "foods"])
+        assert.hasAllKeys(oneMeal["foods"][0], ["id", "name", "calories"])
         done()
       })
     })
