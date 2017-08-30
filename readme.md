@@ -1,8 +1,4 @@
-#### Welcome to Quantified Self! A calorie counter that kinda works!
-
-This app's intent is to give users a space to see how many calories they have consumed in a day. Not only that! It also allows you to compare how the calories consumed compare to their goals! Watch out, text turns red if you eat too much!
-
-You'll need to do a little prep work to set this app up on your own computer.
+You'll need to do a little prep work to set this api up on your own computer.
 
 ## to set up your environment:
 - npm install nodemon --save-dev
