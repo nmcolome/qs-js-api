@@ -80,7 +80,14 @@ app.put('/api/v1/foods/:id', (request, response) => {
 })
 
 app.get('/api/v1/meals', (request, response) => {
-  database.raw(`SELECT meals.id, meals.name, foods.id AS food_id, foods.name AS food_name, foods.calories FROM meals JOIN meal_foods ON meals.id = meal_foods.meal_id JOIN foods ON meal_foods.food_id = foods.id GROUP BY meals.id, meals.name, foods.id ORDER BY meals.id`)
+  database.raw(`SELECT meals.id, meals.name, foods.id AS food_id, foods.name AS food_name, foods.calories
+                FROM meals
+                JOIN meal_foods
+                ON meals.id = meal_foods.meal_id
+                JOIN foods
+                ON meal_foods.food_id = foods.id
+                GROUP BY meals.id, meals.name, foods.id
+                ORDER BY meals.id`)
   .then(data => {
     const breakfastObject = {foods: []}
     const lunchObject = {foods: []}
@@ -114,10 +121,34 @@ app.get('/api/v1/meals', (request, response) => {
     allMeals.push(dinnerObject)
 
     response.json(allMeals)
-    // data.rows.forEach(function(meal) {
-      // console.log(meal)
-      // response.json(meal)
-    // }
+  })
+})
+
+app.get('/api/v1/meals/:meal_id/foods', (request, response) => {
+  const id = request.params.meal_id
+
+  database.raw(`SELECT meals.id, meals.name, foods.id AS food_id, foods.name AS food_name, foods.calories
+                FROM meals
+                JOIN meal_foods
+                ON meals.id = meal_foods.meal_id
+                JOIN foods
+                ON meal_foods.food_id = foods.id
+                WHERE meals.id = ?
+                GROUP BY meals.id, meals.name, foods.id
+                ORDER BY meals.id`,
+                [id]
+                )
+  .then(data => {
+    const mealObject = {foods: []}
+    data.rows.forEach(function(meal) {
+      mealObject["id"] = meal.id
+      mealObject["name"] = meal.name
+      mealObject["foods"].push({"id": meal.food_id, "name": meal.food_name, "calories": meal.calories})
+    })
+    return mealObject
+  })
+  .then(mealObject => {
+    response.json(mealObject)
   })
 })
 
