@@ -14,3 +14,7 @@ CREATE DATABASE quantified_self_test;
 - knex init
 - knex migrate:latest
 - knex seed:run
+
+## to run and see the beautifulness of the API:
+- from your terminal, run 'nodemon'
+- visit localhost:3000/api/v1/foods (etc)
