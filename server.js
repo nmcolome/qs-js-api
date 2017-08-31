@@ -167,6 +167,17 @@ app.delete('/api/v1/meals/:meal_id/foods/:food_id', (request, response) => {
   })
 })
 
+app.post(`/api/v1/meals/:meal_id/foods/:food_id`, (request, response) => {
+  const meal_id = request.params.meal_id
+  const food_id = request.params.food_id
+
+  database.raw(`INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)`, [meal_id, food_id])
+  .then(data => {
+    response.sendStatus(200)
+  })
+  .catch(() => {response.sendStatus(404)})
+})
+
 app.listen(app.get('port'))
 
 module.exports = app
