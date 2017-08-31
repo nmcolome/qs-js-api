@@ -124,10 +124,9 @@ describe('Server', () => {
   })
 
   describe('DELETE /api/v1/foods/:id', () => {
-    it.skip('should return 200 if it successfully deleted a food', done => {
+    it('should return 200 if it successfully deleted a food', done => {
       this.request.delete('/api/v1/foods/1', (error, response) => {
         if(error) {return done(error)}
-        console.log(response)
         assert.equal(response.statusCode, 200)
         done()
       })
