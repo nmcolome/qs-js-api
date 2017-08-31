@@ -33,7 +33,8 @@ app.put('/api/v1/foods/:id', (request, response) => {
 })
 
 app.get('/api/v1/meals', (request, response) => {
-  database.raw(`SELECT meals.id, meals.name, foods.id AS food_id, foods.name AS food_name, foods.calories
+  database.raw(`SELECT meals.id, meals.name, foods.id
+                AS food_id, foods.name AS food_name, foods.calories
                 FROM meals
                 JOIN meal_foods
                 ON meals.id = meal_foods.meal_id
@@ -80,7 +81,8 @@ app.get('/api/v1/meals', (request, response) => {
 app.get('/api/v1/meals/:meal_id/foods', (request, response) => {
   const id = request.params.meal_id
 
-  database.raw(`SELECT meals.id, meals.name, foods.id AS food_id, foods.name AS food_name, foods.calories
+  database.raw(`SELECT meals.id, meals.name, foods.id
+                AS food_id, foods.name AS food_name, foods.calories
                 FROM meals
                 JOIN meal_foods
                 ON meals.id = meal_foods.meal_id
