@@ -1,4 +1,5 @@
-const app = require('express')()
+const express = require('express')
+const app = express()
 const request = require('request')
 const cors = require('cors')
 const bodyParser = require("body-parser")
@@ -17,6 +18,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.set('port', process.env.PORT || 3000)
+
+app.use("/styles", express.static(__dirname + '/styles'));
+
+app.get('/', (request, response) => {
+  response.sendFile('index.html', {root: './'})
+})
 
 app.get('/api/v1/foods', (request, response) => {
   FoodController.getAllFoods(response)

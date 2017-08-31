@@ -18,8 +18,22 @@ describe('Server', () => {
     })
   })
 
+  beforeEach(done => {
+    database.seed.run()
+    .then(() => done())
+  })
+
   after(() => {
     this.server.close()
+  })
+
+  afterEach(done => {
+    Promise.all([
+      database.raw(`TRUNCATE foods RESTART IDENTITY CASCADE`),
+      database.raw(`TRUNCATE meals RESTART IDENTITY CASCADE`)
+      // database.raw(`TRUNCATE meal_foods RESTART IDENTITY CASCADE`),
+    ])
+    .then(() => done())
   })
 
   it('exists', () => {
@@ -27,25 +41,6 @@ describe('Server', () => {
   })
 
   describe('GET /api/v1/foods', () => {
-    beforeEach((done) => {
-      Promise.all([
-        database.raw(
-          'INSERT INTO foods (name, calories, created_at) VALUES (?,?,?)',
-          ["apple", 12, new Date]
-        ),
-        database.raw(
-          'INSERT INTO foods (name, calories, created_at) VALUES (?,?,?)',
-          ["pineapple", 50, new Date]
-        )
-      ])
-      .then(() => done())
-    })
-
-    afterEach(done => {
-      database.raw(`TRUNCATE foods RESTART IDENTITY CASCADE`)
-      .then(() => done())
-    })
-
     it('should return 200', done => {
       this.request.get('/api/v1/foods', (error, response) => {
         if(error) {return done(error)}
@@ -58,33 +53,19 @@ describe('Server', () => {
       this.request.get('/api/v1/foods', (error, response) => {
         if(error) {return done(error)}
         const allFoods = JSON.parse(response.body)
-        assert(response.body.includes('apple'))
-        assert(response.body.includes('pineapple'))
         assert.hasAllKeys(allFoods[0], ["id", "name", "calories"])
-        assert.equal(allFoods.length, 2)
+        assert.equal(allFoods.length, 12)
         done()
       })
     })
   })
 
   describe('GET /api/v1/foods/:id', () => {
-    beforeEach(done => {
-      Promise.all([
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date])
-        .then(() => done())
-      ])
-    })
-
-    afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
-      .then(() => done())
-    })
-
     it('should return a specific food based on id', done => {
       this.request.get('/api/v1/foods/1', (error, response) => {
         if(error) {return done(error)}
         const food = JSON.parse(response.body)
-        assert(response.body.includes("apple"), `${response.body} does not include ${food}`)
+        assert.equal(food[0].id, 1)
         assert.hasAllKeys(food[0], ["id", "name", "calories"])
         assert.equal(food.length, 1)
         done()
@@ -109,19 +90,15 @@ describe('Server', () => {
   })
 
   describe('POST /api/v1/foods', () => {
-    afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
-      .then(() => done())
-    })
-
     it('should create a new food record', done => {
       const food = { "food": { "name": "apple", "calories": 10 } }
       this.request.post('/api/v1/foods', {form: food}, (error, response) => {
         if(error) {return done(error)}
         const foodResponse = JSON.parse(response.body)
-        assert.hasAllKeys(foodResponse[0], ["id", "name", "calories"])
-        assert(response.body.includes("apple"))
-        assert(response.body.includes(10))
+        // console.log(foodResponse)
+        assert.hasAllKeys(foodResponse, ["id", "name", "calories"])
+        assert(foodResponse.name, "apple")
+        assert(foodResponse.id, 10)
         done()
       })
     })
@@ -146,19 +123,6 @@ describe('Server', () => {
   })
 
   describe('DELETE /api/v1/foods/:id', () => {
-    beforeEach(done => {
-      Promise.all([
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date])
-        .then(() => done())
-      ])
-    })
-
-    afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
-      .then(() => done())
-    })
-
     it('should return 200 if it successfully deleted a food', done => {
       this.request.delete('/api/v1/foods/1', (error, response) => {
         if(error) {return done(error)}
@@ -177,19 +141,6 @@ describe('Server', () => {
   })
 
   describe('PUT /api/v1/foods/:id', () => {
-    beforeEach(done => {
-      Promise.all([
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date]),
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["pineapple", 50, new Date])
-        .then(() => done())
-      ])
-    })
-
-    afterEach(done => {
-      database.raw('TRUNCATE foods RESTART IDENTITY CASCADE')
-      .then(() => done())
-    })
-
     it('should return 200 and an updated food record', done => {
       const food = { "food": { "name": "pear", "calories": 12}}
       this.request.put('/api/v1/foods/1', {form: food}, (error, response) => {
@@ -227,32 +178,9 @@ describe('Server', () => {
   })
 
   describe('GET /api/v1/meals', () => {
-    beforeEach(done => {
-      Promise.all([
-        database.raw('INSERT INTO meals (name, created_at) VALUES (?, ?)', ["Breakfast", new Date]),
-        database.raw('INSERT INTO foods (name, calories, created_at) VALUES (?, ?, ?)', ["apple", 12, new Date])
-        .then(() => {
-          Promise.all([
-            database.raw('INSERT INTO meal_foods (meal_id, food_id) VALUES (?, ?)', [1, 1]),
-          ])
-        })
-      ])
-      .then(() => done())
-    })
-
-    afterEach(done => {
-      Promise.all([
-        database.raw('TRUNCATE foods RESTART IDENTITY CASCADE'),
-        database.raw('TRUNCATE meals RESTART IDENTITY CASCADE'),
-        database.raw('TRUNCATE meal_foods RESTART IDENTITY')
-        .then(() => done())
-      ])
-    })
-
     it('returns all meals with their associated foods', () => {
       this.request.get('/api/v1/meals', (error, response) => {
         if(error) { return done(error) }
-        console.log(response.body)
         const meals = JSON.parse(response.body)
         const oneMeal = meals[0]
         assert.equal(meals.length, 4)
