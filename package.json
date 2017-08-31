@@ -11,14 +11,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.4",
     "express": "^4.15.4",
     "knex": "^0.13.0",
-    "pg": "^7.2.0"
+    "pg": "^7.2.0",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "chai": "^4.1.1",
     "mocha": "^3.5.0",
-    "nodemon": "^1.11.0",
-    "request": "^2.81.0"
+    "nodemon": "^1.11.0"
   }
 }
