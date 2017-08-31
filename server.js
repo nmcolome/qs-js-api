@@ -152,6 +152,20 @@ app.get('/api/v1/meals/:meal_id/foods', (request, response) => {
   })
 })
 
+app.delete('/api/v1/meals/:meal_id/foods/:food_id', (request, response) => {
+  const meal_id = request.params.meal_id
+  const food_id = request.params.food_id
+
+  database.raw(`DELETE FROM meal_foods WHERE food_id = ? AND meal_id = ?`, [food_id, meal_id])
+  .then((data) => {
+    if (data.rowCount < 1) {
+      response.sendStatus(404)
+    } else {
+      response.sendStatus(200)
+    }
+  })
+})
+
 app.listen(app.get('port'))
 
 module.exports = app
