@@ -139,16 +139,17 @@ app.get('/api/v1/meals/:meal_id/foods', (request, response) => {
                 [id]
                 )
   .then(data => {
-    const mealObject = {foods: []}
-    data.rows.forEach(function(meal) {
-      mealObject["id"] = meal.id
-      mealObject["name"] = meal.name
-      mealObject["foods"].push({"id": meal.food_id, "name": meal.food_name, "calories": meal.calories})
-    })
-    return mealObject
-  })
-  .then(mealObject => {
-    response.json(mealObject)
+    if(data.rows.length < 1) {
+      response.sendStatus(404)
+    } else {
+      const mealObject = {foods: []}
+      data.rows.forEach(function(meal) {
+        mealObject["id"] = meal.id
+        mealObject["name"] = meal.name
+        mealObject["foods"].push({"id": meal.food_id, "name": meal.food_name, "calories": meal.calories})
+      })
+      response.json(mealObject)
+    }
   })
 })
 
