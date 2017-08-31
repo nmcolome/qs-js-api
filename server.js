@@ -1,4 +1,4 @@
-const Food = require('./lib/models/food')
+const FoodController = require('./lib/controllers/food-controller')
 const app = require('express')()
 const request = require('request')
 
@@ -13,23 +13,23 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.set('port', process.env.PORT || 3000)
 
 app.get('/api/v1/foods', (request, response) => {
-  Food.getAllFoods(response)
+  FoodController.getAllFoods(response)
 })
 
 app.get('/api/v1/foods/:id', (request, response) => {
-  Food.getOneFood(request, response)
+  FoodController.getOneFood(request, response)
 })
 
 app.post('/api/v1/foods', (request, response) => {
-  Food.createFood(request, response)
+  FoodController.createFood(request, response)
 })
 
 app.delete('/api/v1/foods/:id', (request, response) => {
-  Food.deleteFood(request, response)
+  FoodController.deleteFood(request, response)
 })
 
 app.put('/api/v1/foods/:id', (request, response) => {
-  Food.updateFood(request, response)
+  FoodController.updateFood(request, response)
 })
 
 app.get('/api/v1/meals', (request, response) => {
