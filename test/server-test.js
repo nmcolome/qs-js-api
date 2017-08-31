@@ -66,7 +66,6 @@ describe('Server', () => {
         if(error) {return done(error)}
         const food = JSON.parse(response.body)
         assert.equal(food[0].id, 1)
-        assert.equal(food[0].name, "Banana")
         assert.hasAllKeys(food[0], ["id", "name", "calories"])
         assert.equal(food.length, 1)
         done()
@@ -182,7 +181,6 @@ describe('Server', () => {
     it('returns all meals with their associated foods', () => {
       this.request.get('/api/v1/meals', (error, response) => {
         if(error) { return done(error) }
-        console.log(response.body)
         const meals = JSON.parse(response.body)
         const oneMeal = meals[0]
         assert.equal(meals.length, 4)
