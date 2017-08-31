@@ -14,6 +14,7 @@ CREATE DATABASE quantified_self_test;
 ## to run and see the beautifulness of the API:
 - from your terminal, run 'nodemon'
 - visit localhost:3000/api/v1/foods (etc)
+- or visit the live version of the API at: https://qs-api-nc-sl.herokuapp.com/api/v1/foods
 
 ### The following endpoints are available. All endpoints will return the data as JSON.
 
