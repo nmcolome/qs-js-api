@@ -1,0 +1,40 @@
+.instructions {
+  font-size: 1.5em;
+}
+
+.instructions li {
+  padding-top: 2.5%;
+}
+
+h1 {
+  text-align: center;
+  color: #3F51B5;
+}
+
+body {
+  background-color: #FAFAFA;
+}
+
+.container {
+  margin: 5%;
+}
+
+code {
+  font-weight: bold;
+}
+
+.instructions > p {
+  text-align: center;
+  font-weight: bold;
+}
+
+.api p {
+  font-weight: bold;
+  color: #3F51B5;
+  margin-bottom: 0;
+}
+
+.api {
+  border-top: 1px dotted;
+  margin-top: 5%;
+}
