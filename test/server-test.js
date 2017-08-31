@@ -226,30 +226,6 @@ describe('Server', () => {
     })
   })
 
-  // describe ('GET /api/v1/meals', () => {
-  //   beforeEach(done => {
-  //     Promise.all([
-  //       database.raw('INSERT INTO meals (name, created_at) VALUES (?, ?)', ["Breakfast", new Date]),
-  //       database.raw('INSERT INTO meals (name, created_at) VALUES (?, ?)', ["Lunch", new Date])
-  //       .then(() => done())
-  //     ])
-  //   })
-  //
-  //   afterEach(done => {
-  //     database.raw('TRUNCATE meals RESTART IDENTITY CASCADE')
-  //     .then(() => done())
-  //   })
-  //
-  //   it("returns all meals", done => {
-  //     this.request.get('/api/v1/meals', (error, response) => {
-  //       if(error) { done(error) }
-  //       console.log(response.body)
-  //       done()
-  //     })
-  //   })
-  // })
-
-
   describe('GET /api/v1/meals', () => {
     beforeEach(done => {
       Promise.all([
